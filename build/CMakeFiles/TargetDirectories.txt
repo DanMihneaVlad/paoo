@@ -1,0 +1,3 @@
+/home/vlad/Desktop/paoo/paoo1/paoo/build/CMakeFiles/tema.dir
+/home/vlad/Desktop/paoo/paoo1/paoo/build/CMakeFiles/edit_cache.dir
+/home/vlad/Desktop/paoo/paoo1/paoo/build/CMakeFiles/rebuild_cache.dir
