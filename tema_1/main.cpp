@@ -18,7 +18,7 @@ class Animal {
             cout << "Created an animal" << endl;
         }
 
-        ~Animal();
+        ~Animal() { }
 
         void makeSound()
         {
@@ -32,9 +32,13 @@ class Animal {
 };
 
 class Dog : private Animal {
+    protected:
+        string breed;
+    
     public:
-        Dog(const int age, const string& color, const string& type) 
-       :Animal(age, color, type)
+        Dog(const int age, const string& color, const string& type, const string& breed) 
+       :Animal(age, color, type),
+        breed(breed)
         {
 
         }
@@ -42,6 +46,11 @@ class Dog : private Animal {
         void makeSound()
         {
             cout << "Woof" << endl;
+        }
+
+        string getBreed()
+        {
+            return breed;
         }
 };
 
@@ -57,10 +66,12 @@ class Cat : private Animal {
 
 int main()
 {
-    Animal* a = new Animal(1, "Black", "Mammal");
-    Dog* d = new Dog(4, "Brown", "Mammal");
-    Cat *c = new Cat(2, "Yellow", "Mammal");
-
-    d->makeSound();
-    c->makeSound();
+    Animal a(1, "Black", "Mammal");
+    Dog d(4, "Brown", "Mammal", "German Shephard");
+    Cat c(2, "Yellow", "Mammal");
+    
+    cout << d.getBreed() << endl;
+    d.makeSound();
+    
+    c.makeSound();
 }
