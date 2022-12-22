@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 
 using namespace std;
 
@@ -20,7 +21,7 @@ class Animal {
             cout << "Created an animal" << endl;
         }
 
-        ~Animal() { }
+        ~Animal() { cout << "Animal destructor" << endl; }
 
         void makeSound()
         {
@@ -40,6 +41,26 @@ class Animal {
 
             return *this;        // Return reference to this
         }
+
+        string getColor()
+        {
+            return color;
+        }
+
+        string getAge()
+        {
+            return to_string(age);
+        }
+
+        static void lockAnimal(Animal *a)
+        {
+            cout << "Animal " << a->color << " age " << a->getAge() << " locked" << endl;
+        }
+
+        static void unlockAnimal(Animal *a)
+        {
+            cout << "Animal " << a->color << " age " << a->getAge() << " unlocked" << endl;
+        }
     
     private:
         // Disallow the use of compiler generated functions
@@ -52,6 +73,8 @@ class Dog : public Animal {
     
     public:
         Dog() { }
+
+        ~Dog() { cout << "Dog destructor" << endl; }
 
         Dog(const int age, const string& color, const string& type, const string& breed) 
        :Animal(age, color, type),
@@ -94,11 +117,19 @@ class Dog : public Animal {
         {
             return breed;
         }
+
+        // Item 13
+        static Dog* createDog(const int age, const string& color, const string& type, const string& breed)
+        {
+            return new Dog(age, color, type, breed);
+        }
 };
 
 class Cat : public Animal {
     public:
         Cat() { }
+
+        ~Cat() { cout << "Cat destructor" << endl; }
 
         Cat(const int age, const string& color, const string& type) : Animal(age, color, type) {}
 
@@ -124,12 +155,35 @@ class Cat : public Animal {
         {
             cout << "Meow" << endl;
         }
+
+        // Item 13
+        static Cat* createCat(const int age, const string& color, const string& type)
+        {
+            return new Cat(age, color, type);
+        }
+};
+
+// Item 14
+class lockAnimal {
+    private:
+        shared_ptr<Animal> a;
+
+    public:
+    ~lockAnimal() {
+        cout << "lockAnimal destructor called" << endl;
+    }
+
+    explicit lockAnimal(Animal *animal) : a(animal, Animal::unlockAnimal)
+    {
+        Animal::lockAnimal(a.get());
+    }
 };
 
 int main()
 {
+    /* Old demos
     Animal a(1, "Black", "Mammal");
-    Dog d(4, "Brown", "Mammal", "German Shephard");
+    Dog d(4, "Brown", "Mammal", "German Shepherd");
     Cat c(2, "Yellow", "Mammal");
     
     cout << d.getBreed() << endl;
@@ -150,4 +204,32 @@ int main()
     d2.makeSound();
     
     c.makeSound();
+    */
+
+    // Item 13
+    unique_ptr<Dog> dog1(Dog::createDog(4, "black", "mammal", "German Shepherd"));
+    cout << dog1->getBreed() << endl;
+    // The dog and animal destructors are called, the resource is released automatically
+
+    //unique_ptr<Dog> dog2(dog1);
+    // Won't compile because it should be unique
+    
+    shared_ptr<Cat> cat1(Cat::createCat(2, "orange and white", "Mammal"));
+    cout << cat1->getColor() << endl;
+
+    // By using a shared ptr we can copy
+    shared_ptr<Cat> cat2(cat1);
+    cout << cat2->getAge() << endl;
+    cout << cat1->getAge() << endl;
+    // At the end the destructor is called
+
+    // Item 14
+    Animal *a = new Animal(2, "black and brown", "Mammal");
+    {
+        // The animal is locked when created
+        lockAnimal lockA(a);
+        cout << a->getColor() << endl;
+        // The animal is unlocked after lockAnimal destructor is called
+    }
+    cout << "Animal was unlocked" << endl;
 }
